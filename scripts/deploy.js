@@ -6,10 +6,20 @@ async function main() {
   const simpleStorage = await SimpleStorageFactory.deploy();
   await simpleStorage.deployed();
   console.log(`Deployed contract to: ${simpleStorage.address}`);
+
   if (network.config.chainId === 4 && process.env.ETHERSCAN_API_KEY) {
+    console.log("Waiting for block txes...");
     await simpleStorage.deployTransaction.wait(6);
     await verify(simpleStorage.address, []);
   }
+
+  const currentValue = await simpleStorage.getFavoriteNumber();
+  console.log(`Current Value is: ${currentValue}`);
+
+  const transactionResponse = await simpleStorage.store(7);
+  await transactionResponse.wait(1);
+  const updatedValue = await simpleStorage.getFavoriteNumber();
+  console.log(`Updated Value is: ${updatedValue}`);
 }
 
 async function verify(contractAddress, args) {
